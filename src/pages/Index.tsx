@@ -62,7 +62,7 @@ const Index = () => {
       icon: Users,
       buttonText: "Przejdź do panelu drużyny",
       buttonVariant: "competition" as const,
-      onAction: () => setSelectedRole("team"),
+      onAction: () => window.location.href = '/team',
     },
     {
       title: "Panel Sędziego", 
@@ -70,7 +70,7 @@ const Index = () => {
       icon: Gavel,
       buttonText: "Panel sędziego",
       buttonVariant: "judge" as const,
-      onAction: () => setSelectedRole("judge"),
+      onAction: () => window.location.href = '/judge',
     },
     {
       title: "Biuro Zawodów",
@@ -78,7 +78,7 @@ const Index = () => {
       icon: FileText,
       buttonText: "Biuro zawodów",
       buttonVariant: "default" as const,
-      onAction: () => setSelectedRole("office"),
+      onAction: () => window.location.href = '/office',
     },
     {
       title: "Administrator",
@@ -86,7 +86,7 @@ const Index = () => {
       icon: Settings,
       buttonText: "Panel administratora", 
       buttonVariant: "outline" as const,
-      onAction: () => setSelectedRole("admin"),
+      onAction: () => window.location.href = '/admin',
     },
   ];
 
@@ -177,7 +177,9 @@ const Index = () => {
               </p>
             </div>
             <Button variant="outline">
-              Zobacz wszystkie
+              <a href="/public" className="flex items-center">
+                Zobacz wszystkie
+              </a>
             </Button>
           </div>
           
