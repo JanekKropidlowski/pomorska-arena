@@ -1,10 +1,53 @@
+import { useState, useEffect } from "react";
 import { PublicResults } from "@/components/PublicResults";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Users, FileText, Trophy } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar, MapPin, Users, FileText, Trophy, Loader2 } from "lucide-react";
+import { useEvents } from "@/hooks/useEvents";
+import { useCompetitions } from "@/hooks/useCompetitions";
+import { useResults } from "@/hooks/useResults";
 
 const PublicView = () => {
-  // Sample results data
+  const { events, loading: eventsLoading } = useEvents();
+  const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
+  const [selectedCompetition, setSelectedCompetition] = useState<string | null>(null);
+  
+  const { competitions } = useCompetitions(selectedEvent || undefined);
+  const { results, loading: resultsLoading } = useResults(selectedCompetition || undefined);
+
+  useEffect(() => {
+    if (events.length > 0 && !selectedEvent) {
+      // Select first published or active event
+      const activeEvent = events.find(e => e.status === 'published' || e.status === 'active');
+      if (activeEvent) {
+        setSelectedEvent(activeEvent.id);
+      }
+    }
+  }, [events, selectedEvent]);
+
+  useEffect(() => {
+    if (competitions.length > 0 && !selectedCompetition) {
+      setSelectedCompetition(competitions[0].id);
+    }
+  }, [competitions, selectedCompetition]);
+
+  const currentEvent = events.find(e => e.id === selectedEvent);
+  const currentCompetition = competitions.find(c => c.id === selectedCompetition);
+
+  // Transform results for display
+  const displayResults = results
+    .filter(r => r.status === 'valid')
+    .map((r, index) => ({
+      position: index + 1,
+      name: `${r.registrations.participants.first_name} ${r.registrations.participants.last_name}`,
+      team: r.registrations.teams.name,
+      score: r.processed_value ? `${r.processed_value} pkt` : '-',
+      category: r.registrations.age_categories.name
+    }))
+    .slice(0, 10); // Top 10
+
+  // Sample results data for empty state
   const sampleResults = [
     {
       position: 1,
@@ -43,6 +86,29 @@ const PublicView = () => {
     },
   ];
 
+  if (eventsLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (events.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+        <Card className="max-w-md">
+          <CardHeader>
+            <CardTitle>Brak dostępnych wydarzeń</CardTitle>
+            <CardDescription>
+              Obecnie nie ma opublikowanych wydarzeń sportowych
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-subtle">
       {/* Public Header */}
@@ -50,9 +116,7 @@ const PublicView = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold">LZS</span>
-              </div>
+              <img src="/lzs-logo.png" alt="LZS Logo" className="h-10 w-auto" />
               <div>
                 <h1 className="text-xl font-bold text-foreground">
                   Pomorskiego Zrzeszenia LZS
@@ -73,78 +137,115 @@ const PublicView = () => {
 
       <main className="container mx-auto px-4 py-8 space-y-8">
         {/* Event Info */}
-        <Card className="text-center">
-          <CardHeader>
-            <CardTitle className="text-2xl text-foreground">
-              Mistrzostwa Pomorskiego LZS w Strzelectwie 2024
-            </CardTitle>
-            <CardDescription className="text-lg">
-              Kłanino, Gdańsk - 15 października 2024
-            </CardDescription>
-          </CardHeader>
-          
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
-              <div className="flex flex-col items-center space-y-2">
-                <Calendar className="h-6 w-6 text-primary" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Data</p>
-                  <p className="font-medium">15 października</p>
+        {currentEvent && (
+          <Card className="text-center">
+            <CardHeader>
+              <CardTitle className="text-2xl text-foreground">
+                {currentEvent.name}
+              </CardTitle>
+              <CardDescription className="text-lg">
+                {currentEvent.location} - {new Date(currentEvent.start_date).toLocaleDateString('pl-PL', { 
+                  day: 'numeric', 
+                  month: 'long', 
+                  year: 'numeric' 
+                })}
+              </CardDescription>
+            </CardHeader>
+            
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                <div className="flex flex-col items-center space-y-2">
+                  <Calendar className="h-6 w-6 text-primary" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Data</p>
+                    <p className="font-medium">
+                      {new Date(currentEvent.start_date).toLocaleDateString('pl-PL')}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col items-center space-y-2">
+                  <MapPin className="h-6 w-6 text-primary" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Miejsce</p>
+                    <p className="font-medium">{currentEvent.location}</p>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col items-center space-y-2">
+                  <Trophy className="h-6 w-6 text-primary" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Konkurencje</p>
+                    <p className="font-medium">{competitions.length} dyscyplin</p>
+                  </div>
                 </div>
               </div>
-              
-              <div className="flex flex-col items-center space-y-2">
-                <MapPin className="h-6 w-6 text-primary" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Miejsce</p>
-                  <p className="font-medium">Kłanino, Gdańsk</p>
-                </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Event Selection */}
+        {events.length > 1 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Wybierz wydarzenie</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2 flex-wrap">
+                {events
+                  .filter(e => e.status === 'published' || e.status === 'active')
+                  .map(event => (
+                    <Button
+                      key={event.id}
+                      variant={selectedEvent === event.id ? "default" : "outline"}
+                      onClick={() => setSelectedEvent(event.id)}
+                    >
+                      {event.name}
+                    </Button>
+                  ))}
               </div>
-              
-              <div className="flex flex-col items-center space-y-2">
-                <Users className="h-6 w-6 text-primary" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Uczestników</p>
-                  <p className="font-medium">45 zawodników</p>
-                </div>
-              </div>
-              
-              <div className="flex flex-col items-center space-y-2">
-                <Trophy className="h-6 w-6 text-primary" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Konkurencje</p>
-                  <p className="font-medium">4 dyscypliny</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Competition Tabs/Results */}
         <div className="space-y-6">
-          <div className="flex justify-center">
-            <div className="flex space-x-2 bg-muted p-1 rounded-lg">
-              <Badge className="bg-primary text-primary-foreground px-4 py-2">
-                Strzelectwo - Broń krótka
-              </Badge>
-              <Badge variant="secondary" className="px-4 py-2">
-                Broń długa
-              </Badge>
-              <Badge variant="secondary" className="px-4 py-2">
-                Rzut granatem
-              </Badge>
-              <Badge variant="secondary" className="px-4 py-2">
-                Bieg przełajowy
-              </Badge>
+          <div className="flex justify-center flex-wrap gap-2">
+            <div className="flex space-x-2 bg-muted p-1 rounded-lg flex-wrap">
+              {competitions.map(comp => (
+                <Badge
+                  key={comp.id}
+                  className={selectedCompetition === comp.id ? "bg-primary text-primary-foreground px-4 py-2 cursor-pointer" : "px-4 py-2 cursor-pointer"}
+                  variant={selectedCompetition === comp.id ? "default" : "secondary"}
+                  onClick={() => setSelectedCompetition(comp.id)}
+                >
+                  {comp.name}
+                </Badge>
+              ))}
             </div>
           </div>
 
-          <PublicResults
-            eventTitle="Klasyfikacja końcowa"
-            competition="Strzelectwo - Broń krótka"
-            lastUpdated="15:30, 15 października 2024"
-            results={sampleResults}
-          />
+          {resultsLoading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : displayResults.length > 0 ? (
+            <PublicResults
+              eventTitle="Klasyfikacja końcowa"
+              competition={currentCompetition?.name || 'Konkurencja'}
+              lastUpdated={new Date().toLocaleString('pl-PL')}
+              results={displayResults}
+            />
+          ) : (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <Trophy className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground">
+                  Brak wyników dla tej konkurencji
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Additional Info */}
