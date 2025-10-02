@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { CompetitionCard } from "@/components/CompetitionCard";
 import { RoleCard } from "@/components/RoleCard";
+import { useEvents } from "@/hooks/useEvents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,8 +22,13 @@ import {
 
 const Index = () => {
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { events, loading } = useEvents();
 
-  // Sample data for competitions
+  // Filter only featured/active events
+  const featuredEvents = events.filter(e => e.status === 'active');
+
+  // Sample data for competitions (keeping for fallback)
   const upcomingCompetitions = [
     {
       title: "Mistrzostwa Pomorskiego LZS w Strzelectwie",
@@ -165,33 +172,67 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Upcoming Competitions */}
+        {/* Featured Events */}
         <section className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-semibold text-foreground">
-                Nadchodzące wydarzenia
+                Wyróżnione wydarzenia
               </h2>
               <p className="text-muted-foreground">
-                Aktywne i planowane zawody sportowe
+                Aktualne zawody sportowe Pomorskiego LZS
               </p>
             </div>
-            <Button variant="outline">
-              <a href="/public" className="flex items-center">
-                Zobacz wszystkie
-              </a>
+            <Button variant="outline" onClick={() => navigate('/public')}>
+              Zobacz wszystkie
             </Button>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            {upcomingCompetitions.map((competition, index) => (
-              <CompetitionCard
-                key={index}
-                {...competition}
-                onViewDetails={() => console.log(`Viewing details for: ${competition.title}`)}
-              />
-            ))}
-          </div>
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Ładowanie wydarzeń...</p>
+            </div>
+          ) : featuredEvents.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Brak aktywnych wydarzeń</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              {featuredEvents.map((event) => (
+                <Card key={event.id} className="hover:shadow-elegant transition-shadow cursor-pointer" onClick={() => navigate(`/event/${event.id}`)}>
+                  <CardHeader>
+                    {event.logo_url && (
+                      <div className="flex justify-center mb-4">
+                        <img src={event.logo_url} alt="Logo" className="h-16 object-contain" />
+                      </div>
+                    )}
+                    <CardTitle className="text-lg">{event.name}</CardTitle>
+                    <CardDescription>
+                      {new Date(event.start_date).toLocaleDateString('pl-PL', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                      })}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Calendar className="h-4 w-4" />
+                        <span>{event.location}</span>
+                      </div>
+                      <p className="line-clamp-3 text-muted-foreground">
+                        {event.description?.substring(0, 150)}...
+                      </p>
+                    </div>
+                    <Button variant="competition" className="w-full mt-4">
+                      Zobacz szczegóły i zgłoś drużynę
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Quick Actions */}

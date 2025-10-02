@@ -10,6 +10,7 @@ import JudgePanel from "./pages/JudgePanel";
 import OfficePanel from "./pages/OfficePanel";
 import AdminPanel from "./pages/AdminPanel";
 import NotFound from "./pages/NotFound";
+import EventDetails from "./pages/EventDetails";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +22,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/event/:eventId" element={<EventDetails />} />
           <Route path="/public" element={<PublicView />} />
           <Route path="/team" element={<TeamPanel />} />
           <Route path="/judge" element={<JudgePanel />} />
