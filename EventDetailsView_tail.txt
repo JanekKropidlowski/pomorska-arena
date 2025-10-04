@@ -1,0 +1,3158 @@
+        <TabsContent value="reports" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Raporty - {event.name}</CardTitle>
+              <CardDescription>
+                Generuj raporty i eksportuj dane dla tego wydarzenia
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <FileText className="h-5 w-5 text-blue-600" />
+                          Lista drużyn
+                        </CardTitle>
+                        <CardDescription>Pełna lista zarejestrowanych drużyn</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <EnhancedPDFGenerator
+                          data={eventTeams}
+                          type="participants"
+                          eventId={event.id}
+                        />
+                      </CardContent>
+                    </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="h-5 w-5 text-green-600" />
+                      Lista uczestników
+                    </CardTitle>
+                    <CardDescription>Wszyscy zawodnicy z drużyn</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="participants"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-purple-600" />
+                      Statystyki
+                    </CardTitle>
+                    <CardDescription>Analiza danych wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full">
+                      <Download className="h-4 w-4 mr-2" />
+                      Pobierz Excel
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-yellow-600" />
+                      Numery startowe
+                    </CardTitle>
+                    <CardDescription>Numery dla zawodników</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="starting_numbers"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-red-600" />
+                      Karty sędziowskie
+                    </CardTitle>
+                    <CardDescription>Dokumenty dla sędziów</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="judge_cards"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-indigo-600" />
+                      Raport końcowy
+                    </CardTitle>
+                    <CardDescription>Podsumowanie wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={event}
+                      type="event"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default EventDetailsView;
+
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+            <CardHeader>
+              <CardTitle>Raporty - {event.name}</CardTitle>
+              <CardDescription>
+                Generuj raporty i eksportuj dane dla tego wydarzenia
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <FileText className="h-5 w-5 text-blue-600" />
+                          Lista drużyn
+                        </CardTitle>
+                        <CardDescription>Pełna lista zarejestrowanych drużyn</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <EnhancedPDFGenerator
+                          data={eventTeams}
+                          type="participants"
+                          eventId={event.id}
+                        />
+                      </CardContent>
+                    </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="h-5 w-5 text-green-600" />
+                      Lista uczestników
+                    </CardTitle>
+                    <CardDescription>Wszyscy zawodnicy z drużyn</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="participants"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-purple-600" />
+                      Statystyki
+                    </CardTitle>
+                    <CardDescription>Analiza danych wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full">
+                      <Download className="h-4 w-4 mr-2" />
+                      Pobierz Excel
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-yellow-600" />
+                      Numery startowe
+                    </CardTitle>
+                    <CardDescription>Numery dla zawodników</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="starting_numbers"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-red-600" />
+                      Karty sędziowskie
+                    </CardTitle>
+                    <CardDescription>Dokumenty dla sędziów</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="judge_cards"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-indigo-600" />
+                      Raport końcowy
+                    </CardTitle>
+                    <CardDescription>Podsumowanie wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={event}
+                      type="event"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default EventDetailsView;
+
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+          <Card>
+            <CardHeader>
+              <CardTitle>Raporty - {event.name}</CardTitle>
+              <CardDescription>
+                Generuj raporty i eksportuj dane dla tego wydarzenia
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <FileText className="h-5 w-5 text-blue-600" />
+                          Lista drużyn
+                        </CardTitle>
+                        <CardDescription>Pełna lista zarejestrowanych drużyn</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <EnhancedPDFGenerator
+                          data={eventTeams}
+                          type="participants"
+                          eventId={event.id}
+                        />
+                      </CardContent>
+                    </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="h-5 w-5 text-green-600" />
+                      Lista uczestników
+                    </CardTitle>
+                    <CardDescription>Wszyscy zawodnicy z drużyn</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="participants"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-purple-600" />
+                      Statystyki
+                    </CardTitle>
+                    <CardDescription>Analiza danych wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full">
+                      <Download className="h-4 w-4 mr-2" />
+                      Pobierz Excel
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-yellow-600" />
+                      Numery startowe
+                    </CardTitle>
+                    <CardDescription>Numery dla zawodników</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="starting_numbers"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-red-600" />
+                      Karty sędziowskie
+                    </CardTitle>
+                    <CardDescription>Dokumenty dla sędziów</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="judge_cards"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-indigo-600" />
+                      Raport końcowy
+                    </CardTitle>
+                    <CardDescription>Podsumowanie wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={event}
+                      type="event"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default EventDetailsView;
+
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+            <CardHeader>
+              <CardTitle>Raporty - {event.name}</CardTitle>
+              <CardDescription>
+                Generuj raporty i eksportuj dane dla tego wydarzenia
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <FileText className="h-5 w-5 text-blue-600" />
+                          Lista drużyn
+                        </CardTitle>
+                        <CardDescription>Pełna lista zarejestrowanych drużyn</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <EnhancedPDFGenerator
+                          data={eventTeams}
+                          type="participants"
+                          eventId={event.id}
+                        />
+                      </CardContent>
+                    </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="h-5 w-5 text-green-600" />
+                      Lista uczestników
+                    </CardTitle>
+                    <CardDescription>Wszyscy zawodnicy z drużyn</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="participants"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-purple-600" />
+                      Statystyki
+                    </CardTitle>
+                    <CardDescription>Analiza danych wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full">
+                      <Download className="h-4 w-4 mr-2" />
+                      Pobierz Excel
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-yellow-600" />
+                      Numery startowe
+                    </CardTitle>
+                    <CardDescription>Numery dla zawodników</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="starting_numbers"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-red-600" />
+                      Karty sędziowskie
+                    </CardTitle>
+                    <CardDescription>Dokumenty dla sędziów</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="judge_cards"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-indigo-600" />
+                      Raport końcowy
+                    </CardTitle>
+                    <CardDescription>Podsumowanie wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={event}
+                      type="event"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default EventDetailsView;
+
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+            <CardHeader>
+              <CardTitle>Raporty - {event.name}</CardTitle>
+              <CardDescription>
+                Generuj raporty i eksportuj dane dla tego wydarzenia
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <FileText className="h-5 w-5 text-blue-600" />
+                          Lista drużyn
+                        </CardTitle>
+                        <CardDescription>Pełna lista zarejestrowanych drużyn</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <EnhancedPDFGenerator
+                          data={eventTeams}
+                          type="participants"
+                          eventId={event.id}
+                        />
+                      </CardContent>
+                    </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="h-5 w-5 text-green-600" />
+                      Lista uczestników
+                    </CardTitle>
+                    <CardDescription>Wszyscy zawodnicy z drużyn</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="participants"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-purple-600" />
+                      Statystyki
+                    </CardTitle>
+                    <CardDescription>Analiza danych wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full">
+                      <Download className="h-4 w-4 mr-2" />
+                      Pobierz Excel
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-yellow-600" />
+                      Numery startowe
+                    </CardTitle>
+                    <CardDescription>Numery dla zawodników</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="starting_numbers"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-red-600" />
+                      Karty sędziowskie
+                    </CardTitle>
+                    <CardDescription>Dokumenty dla sędziów</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="judge_cards"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-indigo-600" />
+                      Raport końcowy
+                    </CardTitle>
+                    <CardDescription>Podsumowanie wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={event}
+                      type="event"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default EventDetailsView;
+
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+            <CardHeader>
+              <CardTitle>Raporty - {event.name}</CardTitle>
+              <CardDescription>
+                Generuj raporty i eksportuj dane dla tego wydarzenia
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <FileText className="h-5 w-5 text-blue-600" />
+                          Lista drużyn
+                        </CardTitle>
+                        <CardDescription>Pełna lista zarejestrowanych drużyn</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <EnhancedPDFGenerator
+                          data={eventTeams}
+                          type="participants"
+                          eventId={event.id}
+                        />
+                      </CardContent>
+                    </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="h-5 w-5 text-green-600" />
+                      Lista uczestników
+                    </CardTitle>
+                    <CardDescription>Wszyscy zawodnicy z drużyn</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="participants"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-purple-600" />
+                      Statystyki
+                    </CardTitle>
+                    <CardDescription>Analiza danych wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full">
+                      <Download className="h-4 w-4 mr-2" />
+                      Pobierz Excel
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-yellow-600" />
+                      Numery startowe
+                    </CardTitle>
+                    <CardDescription>Numery dla zawodników</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="starting_numbers"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-red-600" />
+                      Karty sędziowskie
+                    </CardTitle>
+                    <CardDescription>Dokumenty dla sędziów</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="judge_cards"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-indigo-600" />
+                      Raport końcowy
+                    </CardTitle>
+                    <CardDescription>Podsumowanie wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={event}
+                      type="event"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default EventDetailsView;
+
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+          <Card>
+            <CardHeader>
+              <CardTitle>Raporty - {event.name}</CardTitle>
+              <CardDescription>
+                Generuj raporty i eksportuj dane dla tego wydarzenia
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <FileText className="h-5 w-5 text-blue-600" />
+                          Lista drużyn
+                        </CardTitle>
+                        <CardDescription>Pełna lista zarejestrowanych drużyn</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <EnhancedPDFGenerator
+                          data={eventTeams}
+                          type="participants"
+                          eventId={event.id}
+                        />
+                      </CardContent>
+                    </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="h-5 w-5 text-green-600" />
+                      Lista uczestników
+                    </CardTitle>
+                    <CardDescription>Wszyscy zawodnicy z drużyn</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="participants"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-purple-600" />
+                      Statystyki
+                    </CardTitle>
+                    <CardDescription>Analiza danych wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full">
+                      <Download className="h-4 w-4 mr-2" />
+                      Pobierz Excel
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-yellow-600" />
+                      Numery startowe
+                    </CardTitle>
+                    <CardDescription>Numery dla zawodników</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="starting_numbers"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-red-600" />
+                      Karty sędziowskie
+                    </CardTitle>
+                    <CardDescription>Dokumenty dla sędziów</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="judge_cards"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-indigo-600" />
+                      Raport końcowy
+                    </CardTitle>
+                    <CardDescription>Podsumowanie wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={event}
+                      type="event"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default EventDetailsView;
+
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+            <CardHeader>
+              <CardTitle>Raporty - {event.name}</CardTitle>
+              <CardDescription>
+                Generuj raporty i eksportuj dane dla tego wydarzenia
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <FileText className="h-5 w-5 text-blue-600" />
+                          Lista drużyn
+                        </CardTitle>
+                        <CardDescription>Pełna lista zarejestrowanych drużyn</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <EnhancedPDFGenerator
+                          data={eventTeams}
+                          type="participants"
+                          eventId={event.id}
+                        />
+                      </CardContent>
+                    </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="h-5 w-5 text-green-600" />
+                      Lista uczestników
+                    </CardTitle>
+                    <CardDescription>Wszyscy zawodnicy z drużyn</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="participants"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-purple-600" />
+                      Statystyki
+                    </CardTitle>
+                    <CardDescription>Analiza danych wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full">
+                      <Download className="h-4 w-4 mr-2" />
+                      Pobierz Excel
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-yellow-600" />
+                      Numery startowe
+                    </CardTitle>
+                    <CardDescription>Numery dla zawodników</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="starting_numbers"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-red-600" />
+                      Karty sędziowskie
+                    </CardTitle>
+                    <CardDescription>Dokumenty dla sędziów</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="judge_cards"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-indigo-600" />
+                      Raport końcowy
+                    </CardTitle>
+                    <CardDescription>Podsumowanie wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={event}
+                      type="event"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default EventDetailsView;
+
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+            <CardHeader>
+              <CardTitle>Raporty - {event.name}</CardTitle>
+              <CardDescription>
+                Generuj raporty i eksportuj dane dla tego wydarzenia
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <FileText className="h-5 w-5 text-blue-600" />
+                          Lista drużyn
+                        </CardTitle>
+                        <CardDescription>Pełna lista zarejestrowanych drużyn</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <EnhancedPDFGenerator
+                          data={eventTeams}
+                          type="participants"
+                          eventId={event.id}
+                        />
+                      </CardContent>
+                    </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="h-5 w-5 text-green-600" />
+                      Lista uczestników
+                    </CardTitle>
+                    <CardDescription>Wszyscy zawodnicy z drużyn</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="participants"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-purple-600" />
+                      Statystyki
+                    </CardTitle>
+                    <CardDescription>Analiza danych wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full">
+                      <Download className="h-4 w-4 mr-2" />
+                      Pobierz Excel
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-yellow-600" />
+                      Numery startowe
+                    </CardTitle>
+                    <CardDescription>Numery dla zawodników</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="starting_numbers"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-red-600" />
+                      Karty sędziowskie
+                    </CardTitle>
+                    <CardDescription>Dokumenty dla sędziów</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="judge_cards"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-indigo-600" />
+                      Raport końcowy
+                    </CardTitle>
+                    <CardDescription>Podsumowanie wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={event}
+                      type="event"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default EventDetailsView;
+
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+            <CardHeader>
+              <CardTitle>Raporty - {event.name}</CardTitle>
+              <CardDescription>
+                Generuj raporty i eksportuj dane dla tego wydarzenia
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <FileText className="h-5 w-5 text-blue-600" />
+                          Lista drużyn
+                        </CardTitle>
+                        <CardDescription>Pełna lista zarejestrowanych drużyn</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <EnhancedPDFGenerator
+                          data={eventTeams}
+                          type="participants"
+                          eventId={event.id}
+                        />
+                      </CardContent>
+                    </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="h-5 w-5 text-green-600" />
+                      Lista uczestników
+                    </CardTitle>
+                    <CardDescription>Wszyscy zawodnicy z drużyn</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="participants"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-purple-600" />
+                      Statystyki
+                    </CardTitle>
+                    <CardDescription>Analiza danych wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full">
+                      <Download className="h-4 w-4 mr-2" />
+                      Pobierz Excel
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-yellow-600" />
+                      Numery startowe
+                    </CardTitle>
+                    <CardDescription>Numery dla zawodników</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="starting_numbers"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-red-600" />
+                      Karty sędziowskie
+                    </CardTitle>
+                    <CardDescription>Dokumenty dla sędziów</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="judge_cards"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-indigo-600" />
+                      Raport końcowy
+                    </CardTitle>
+                    <CardDescription>Podsumowanie wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={event}
+                      type="event"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default EventDetailsView;
+
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+          <Card>
+            <CardHeader>
+              <CardTitle>Raporty - {event.name}</CardTitle>
+              <CardDescription>
+                Generuj raporty i eksportuj dane dla tego wydarzenia
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <FileText className="h-5 w-5 text-blue-600" />
+                          Lista drużyn
+                        </CardTitle>
+                        <CardDescription>Pełna lista zarejestrowanych drużyn</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <EnhancedPDFGenerator
+                          data={eventTeams}
+                          type="participants"
+                          eventId={event.id}
+                        />
+                      </CardContent>
+                    </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="h-5 w-5 text-green-600" />
+                      Lista uczestników
+                    </CardTitle>
+                    <CardDescription>Wszyscy zawodnicy z drużyn</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="participants"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-purple-600" />
+                      Statystyki
+                    </CardTitle>
+                    <CardDescription>Analiza danych wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full">
+                      <Download className="h-4 w-4 mr-2" />
+                      Pobierz Excel
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-yellow-600" />
+                      Numery startowe
+                    </CardTitle>
+                    <CardDescription>Numery dla zawodników</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="starting_numbers"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-red-600" />
+                      Karty sędziowskie
+                    </CardTitle>
+                    <CardDescription>Dokumenty dla sędziów</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="judge_cards"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-indigo-600" />
+                      Raport końcowy
+                    </CardTitle>
+                    <CardDescription>Podsumowanie wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={event}
+                      type="event"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default EventDetailsView;
+
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+            <CardHeader>
+              <CardTitle>Raporty - {event.name}</CardTitle>
+              <CardDescription>
+                Generuj raporty i eksportuj dane dla tego wydarzenia
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <FileText className="h-5 w-5 text-blue-600" />
+                          Lista drużyn
+                        </CardTitle>
+                        <CardDescription>Pełna lista zarejestrowanych drużyn</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <EnhancedPDFGenerator
+                          data={eventTeams}
+                          type="participants"
+                          eventId={event.id}
+                        />
+                      </CardContent>
+                    </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="h-5 w-5 text-green-600" />
+                      Lista uczestników
+                    </CardTitle>
+                    <CardDescription>Wszyscy zawodnicy z drużyn</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="participants"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-purple-600" />
+                      Statystyki
+                    </CardTitle>
+                    <CardDescription>Analiza danych wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full">
+                      <Download className="h-4 w-4 mr-2" />
+                      Pobierz Excel
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-yellow-600" />
+                      Numery startowe
+                    </CardTitle>
+                    <CardDescription>Numery dla zawodników</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="starting_numbers"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-red-600" />
+                      Karty sędziowskie
+                    </CardTitle>
+                    <CardDescription>Dokumenty dla sędziów</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="judge_cards"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-indigo-600" />
+                      Raport końcowy
+                    </CardTitle>
+                    <CardDescription>Podsumowanie wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={event}
+                      type="event"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default EventDetailsView;
+
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+            <CardHeader>
+              <CardTitle>Raporty - {event.name}</CardTitle>
+              <CardDescription>
+                Generuj raporty i eksportuj dane dla tego wydarzenia
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <FileText className="h-5 w-5 text-blue-600" />
+                          Lista drużyn
+                        </CardTitle>
+                        <CardDescription>Pełna lista zarejestrowanych drużyn</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <EnhancedPDFGenerator
+                          data={eventTeams}
+                          type="participants"
+                          eventId={event.id}
+                        />
+                      </CardContent>
+                    </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="h-5 w-5 text-green-600" />
+                      Lista uczestników
+                    </CardTitle>
+                    <CardDescription>Wszyscy zawodnicy z drużyn</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="participants"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-purple-600" />
+                      Statystyki
+                    </CardTitle>
+                    <CardDescription>Analiza danych wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full">
+                      <Download className="h-4 w-4 mr-2" />
+                      Pobierz Excel
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-yellow-600" />
+                      Numery startowe
+                    </CardTitle>
+                    <CardDescription>Numery dla zawodników</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="starting_numbers"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-red-600" />
+                      Karty sędziowskie
+                    </CardTitle>
+                    <CardDescription>Dokumenty dla sędziów</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="judge_cards"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-indigo-600" />
+                      Raport końcowy
+                    </CardTitle>
+                    <CardDescription>Podsumowanie wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={event}
+                      type="event"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default EventDetailsView;
+
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+            <CardHeader>
+              <CardTitle>Raporty - {event.name}</CardTitle>
+              <CardDescription>
+                Generuj raporty i eksportuj dane dla tego wydarzenia
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <FileText className="h-5 w-5 text-blue-600" />
+                          Lista drużyn
+                        </CardTitle>
+                        <CardDescription>Pełna lista zarejestrowanych drużyn</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <EnhancedPDFGenerator
+                          data={eventTeams}
+                          type="participants"
+                          eventId={event.id}
+                        />
+                      </CardContent>
+                    </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="h-5 w-5 text-green-600" />
+                      Lista uczestników
+                    </CardTitle>
+                    <CardDescription>Wszyscy zawodnicy z drużyn</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="participants"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-purple-600" />
+                      Statystyki
+                    </CardTitle>
+                    <CardDescription>Analiza danych wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full">
+                      <Download className="h-4 w-4 mr-2" />
+                      Pobierz Excel
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-yellow-600" />
+                      Numery startowe
+                    </CardTitle>
+                    <CardDescription>Numery dla zawodników</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="starting_numbers"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-red-600" />
+                      Karty sędziowskie
+                    </CardTitle>
+                    <CardDescription>Dokumenty dla sędziów</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="judge_cards"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-indigo-600" />
+                      Raport końcowy
+                    </CardTitle>
+                    <CardDescription>Podsumowanie wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={event}
+                      type="event"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default EventDetailsView;
+
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+          <Card>
+            <CardHeader>
+              <CardTitle>Raporty - {event.name}</CardTitle>
+              <CardDescription>
+                Generuj raporty i eksportuj dane dla tego wydarzenia
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <FileText className="h-5 w-5 text-blue-600" />
+                          Lista drużyn
+                        </CardTitle>
+                        <CardDescription>Pełna lista zarejestrowanych drużyn</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <EnhancedPDFGenerator
+                          data={eventTeams}
+                          type="participants"
+                          eventId={event.id}
+                        />
+                      </CardContent>
+                    </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="h-5 w-5 text-green-600" />
+                      Lista uczestników
+                    </CardTitle>
+                    <CardDescription>Wszyscy zawodnicy z drużyn</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="participants"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-purple-600" />
+                      Statystyki
+                    </CardTitle>
+                    <CardDescription>Analiza danych wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full">
+                      <Download className="h-4 w-4 mr-2" />
+                      Pobierz Excel
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-yellow-600" />
+                      Numery startowe
+                    </CardTitle>
+                    <CardDescription>Numery dla zawodników</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="starting_numbers"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-red-600" />
+                      Karty sędziowskie
+                    </CardTitle>
+                    <CardDescription>Dokumenty dla sędziów</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="judge_cards"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-indigo-600" />
+                      Raport końcowy
+                    </CardTitle>
+                    <CardDescription>Podsumowanie wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={event}
+                      type="event"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default EventDetailsView;
+
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+            <CardHeader>
+              <CardTitle>Raporty - {event.name}</CardTitle>
+              <CardDescription>
+                Generuj raporty i eksportuj dane dla tego wydarzenia
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <FileText className="h-5 w-5 text-blue-600" />
+                          Lista drużyn
+                        </CardTitle>
+                        <CardDescription>Pełna lista zarejestrowanych drużyn</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <EnhancedPDFGenerator
+                          data={eventTeams}
+                          type="participants"
+                          eventId={event.id}
+                        />
+                      </CardContent>
+                    </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Users className="h-5 w-5 text-green-600" />
+                      Lista uczestników
+                    </CardTitle>
+                    <CardDescription>Wszyscy zawodnicy z drużyn</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="participants"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-purple-600" />
+                      Statystyki
+                    </CardTitle>
+                    <CardDescription>Analiza danych wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button className="w-full">
+                      <Download className="h-4 w-4 mr-2" />
+                      Pobierz Excel
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-yellow-600" />
+                      Numery startowe
+                    </CardTitle>
+                    <CardDescription>Numery dla zawodników</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="starting_numbers"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <FileText className="h-5 w-5 text-red-600" />
+                      Karty sędziowskie
+                    </CardTitle>
+                    <CardDescription>Dokumenty dla sędziów</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={eventTeams}
+                      type="judge_cards"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5 text-indigo-600" />
+                      Raport końcowy
+                    </CardTitle>
+                    <CardDescription>Podsumowanie wydarzenia</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <EnhancedPDFGenerator
+                      data={event}
+                      type="event"
+                      eventId={event.id}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default EventDetailsView;
+
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+        <TabsContent value="users" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Użytkownicy - {event.name}</CardTitle>
+              <CardDescription>
+                Zarządzaj użytkownikami przypisanymi do drużyn w tym wydarzeniu
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {selectedTeamForUsers ? (
+                <TeamUserManagement
+                  teamId={selectedTeamForUsers.id}
+                  teamName={selectedTeamForUsers.name}
+                  onClose={() => setSelectedTeamForUsers(null)}
+                />
+              ) : (
+                <div className="space-y-4">
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                    <p className="text-muted-foreground mb-4">Wybierz drużynę aby zarządzać użytkownikami</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {eventTeams.map((team) => (
+                      <Card key={team.id} className="hover:shadow-lg transition-shadow cursor-pointer"
+                            onClick={() => handleTeamUserManagement(team)}>
+                        <CardHeader>
+                          <CardTitle className="text-lg">{team.name}</CardTitle>
+                          <CardDescription>
+                            {team.type} • {team.supervisor_name}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex items-center justify-between">
+                            <Badge variant="secondary">
+                              {team.status === 'accepted' ? 'Zaakceptowana' :
+                               team.status === 'rejected' ? 'Odrzucona' : 'Oczekująca'}
+                            </Badge>
+                            <Button variant="outline" size="sm">
+                              <Users className="h-4 w-4 mr-1" />
+                              Zarządzaj użytkownikami
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>

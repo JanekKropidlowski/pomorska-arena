@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { StandardHeader } from "@/components/StandardHeader";
 import { PublicResults } from "@/components/PublicResults";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,17 +36,53 @@ const PublicView = () => {
   const currentEvent = events.find(e => e.id === selectedEvent);
   const currentCompetition = competitions.find(c => c.id === selectedCompetition);
 
-  // Transform results for display
-  const displayResults = results
-    .filter(r => r.status === 'valid')
+  // Prefer published snapshot from localStorage (MVP), fallback to hook results
+  let publishedDisplay: Array<{ position: number; name: string; team: string; score: string; category: string }> | null = null;
+  let publishedAt: string | null = null;
+  try {
+    const snapRaw = localStorage.getItem('publishedResults');
+    if (snapRaw) {
+      const snap = JSON.parse(snapRaw);
+      if (Array.isArray(snap.individual)) {
+        publishedDisplay = snap.individual.map((r: any, idx: number) => ({
+          position: idx + 1,
+          name: r.name ?? '-',
+          team: r.team ?? '-',
+          score: r.result ?? '-',
+          category: r.category ?? '-',
+        }));
+      }
+      if (Array.isArray(snap.team)) {
+        // store for team classification rendering below
+      }
+      if (typeof snap.publishedAt === 'string') {
+        publishedAt = snap.publishedAt;
+      }
+    }
+  } catch {}
+
+  const displayResults = publishedDisplay ?? results
+    .filter(r => r && r.status === 'valid' && r.registrations && r.registrations.participants && r.registrations.teams && r.registrations.age_categories)
     .map((r, index) => ({
       position: index + 1,
-      name: `${r.registrations.participants.first_name} ${r.registrations.participants.last_name}`,
-      team: r.registrations.teams.name,
+      name: `${r.registrations.participants?.first_name ?? ''} ${r.registrations.participants?.last_name ?? ''}`.trim(),
+      team: r.registrations.teams?.name ?? '-',
       score: r.processed_value ? `${r.processed_value} pkt` : '-',
-      category: r.registrations.age_categories.name
+      category: r.registrations.age_categories?.name ?? '-'
     }))
-    .slice(0, 10); // Top 10
+    .slice(0, 10);
+
+  // Read published team classification
+  let publishedTeams: Array<{ team: string; points: number }> = [];
+  try {
+    const snapRaw = localStorage.getItem('publishedResults');
+    if (snapRaw) {
+      const snap = JSON.parse(snapRaw);
+      if (Array.isArray(snap.team)) {
+        publishedTeams = snap.team as Array<{ team: string; points: number }>;
+      }
+    }
+  } catch {}
 
   // Sample results data for empty state
   const sampleResults = [
@@ -110,38 +147,22 @@ const PublicView = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
-      {/* Public Header */}
-      <header className="bg-background border-b shadow-sm">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <img src="/lzs-logo.png" alt="LZS Logo" className="h-10 w-auto" />
-              <div>
-                <h1 className="text-xl font-bold text-foreground">
-                  Pomorskiego Zrzeszenia LZS
-                </h1>
-                <p className="text-sm text-muted-foreground">
-                  System Zawodów Sportowych
-                </p>
-              </div>
-            </div>
-            
-            <Badge className="bg-success text-success-foreground">
-              <Trophy className="h-3 w-3 mr-1" />
-              Wyniki na żywo
-            </Badge>
-          </div>
-        </div>
-      </header>
+    <div className="page-container">
+      <StandardHeader 
+        title="Publiczne wyniki"
+        subtitle="Pomorskie Zrzeszenie LZS"
+        showNavigation={true}
+        showUserInfo={false}
+        showNotifications={false}
+      />
 
-      <main className="container mx-auto px-4 py-8 space-y-8">
+      <main className="page-content page-section">
         {/* Event Info */}
         {currentEvent && (
           <Card className="text-center">
             <CardHeader>
-              <CardTitle className="text-2xl text-foreground">
-                {currentEvent.name}
+              <CardTitle className="mobile-heading text-foreground">
+                {currentEvent?.name || 'Wydarzenie'}
               </CardTitle>
               <CardDescription className="text-lg">
                 {currentEvent.location} - {new Date(currentEvent.start_date).toLocaleDateString('pl-PL', { 
@@ -153,7 +174,7 @@ const PublicView = () => {
             </CardHeader>
             
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+              <div className="mobile-grid text-center">
                 <div className="flex flex-col items-center space-y-2">
                   <Calendar className="h-6 w-6 text-primary" />
                   <div>
@@ -233,7 +254,7 @@ const PublicView = () => {
             <PublicResults
               eventTitle="Klasyfikacja końcowa"
               competition={currentCompetition?.name || 'Konkurencja'}
-              lastUpdated={new Date().toLocaleString('pl-PL')}
+              lastUpdated={publishedAt ? new Date(publishedAt).toLocaleString('pl-PL') : new Date().toLocaleString('pl-PL')}
               results={displayResults}
             />
           ) : (
@@ -249,7 +270,7 @@ const PublicView = () => {
         </div>
 
         {/* Additional Info */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="mobile-grid lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -274,31 +295,22 @@ const PublicView = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Trophy className="h-5 w-5" />
-                System punktacji
+                Klasyfikacja drużynowa
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground mb-4">
-                Punktacja zgodnie z zasadami LZS:
-              </p>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span>I miejsce:</span>
-                  <span className="font-medium">15 pkt</span>
+              {publishedTeams.length > 0 ? (
+                <div className="space-y-2 text-sm">
+                  {publishedTeams.map((t, i) => (
+                    <div key={t.team} className="flex justify-between">
+                      <span>{i+1}. {t.team}</span>
+                      <span className="font-medium">{t.points} pkt</span>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex justify-between">
-                  <span>II miejsce:</span>
-                  <span className="font-medium">13 pkt</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>III miejsce:</span>
-                  <span className="font-medium">11 pkt</span>
-                </div>
-                <div className="flex justify-between text-muted-foreground">
-                  <span>IV-XIII:</span>
-                  <span>10-1 pkt</span>
-                </div>
-              </div>
+              ) : (
+                <p className="text-muted-foreground">Brak opublikowanej klasyfikacji drużynowej</p>
+              )}
             </CardContent>
           </Card>
         </div>

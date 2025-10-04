@@ -15,40 +15,68 @@ export async function seedCyclicEvents() {
       .from('events')
       .insert({
         name: 'II Mistrzostwa Województwa Pomorskiego Szkół Ponadpodstawowych w Strzelectwie „W Dychę" o Puchar Prezesa Pomorskiego Zrzeszenia LZS',
-        description: `Zawody składają się z trzech obowiązkowych konkurencji: strzelectwa, biegu przełajowego oraz rzutu granatem.
+        description: `Zawody składają się z trzech obowiązkowych konkurencji: strzelectwa, biegu przełajowego oraz rzutu granatem do celu.
 
-Konkurencja strzelecka: Każdy zawodnik oddaje 5 strzałów z broni krótkiej i 5 strzałów z broni długiej w pozycji stojącej z odległości 5 metrów. Przed zawodami wykonuje 5 strzałów próbnych.
+KONKURENCJE I PUNKTACJA:
 
-Bieg przełajowy: Dystans około 1000 metrów.
+1. Strzelectwo
+Każdy zawodnik oddaje 5 strzałów z broni krótkiej i 5 strzałów z broni długiej (pozycja stojąca, 5 metrów). Do klasyfikacji liczy się suma punktów z obu serii. Przed strzelaniem zawodnik ma 5 strzałów próbnych (nie liczą się do punktacji).
 
-Rzut granatem: Dziewczęta rzucają z odległości 15 metrów, chłopcy z 20 metrów. Każdy zawodnik oddaje 3 próby.
+2. Bieg przełajowy
+Dystans: ok. 1000 m. Prowadzona jest tylko klasyfikacja miejsc (nie ma dodatkowych punktów do sumy). Troje najlepszych dziewcząt i chłopców dostaje nagrody.
 
-Każda szkoła wystawia drużynę składającą się z 6 zawodników: 3 dziewcząt i 3 chłopców. W klasyfikacji drużynowej liczą się wyniki wszystkich 6 zawodników.
+3. Rzut granatem do celu
+Dziewczęta: rzut z 15 m, chłopcy: rzut z 20 m. Cel: trzy koła o średnicy 1 m, 2 m, 3 m. Punktacja: trafienie do środka = 3 pkt, do drugiego koła = 2 pkt, do trzeciego = 1 pkt. Każdy uczestnik wykonuje 3 rzuty.
 
-Punktacja drużynowa: 1→15pkt, 2→13pkt, 3→11pkt, 4→10pkt, 5→9pkt, 6→8pkt, 7→7pkt, 8→6pkt, 9→5pkt, 10→4pkt, 11→3pkt, 12→2pkt, 13+→1pkt
+KLASYFIKACJA:
+- Indywidualna: Strzelectwo (suma punktów), Bieg (kolejność na mecie), Rzut granatem (suma punktów)
+- Drużynowa: Szkołę reprezentuje 6 uczniów (3 dziewczęta + 3 chłopców). Punktacja: 1→15pkt, 2→13pkt, 3→11pkt, 4→10pkt, 5→9pkt, 6→8pkt, 7→7pkt, 8→6pkt, 9→5pkt, 10→4pkt, 11→3pkt, 12→2pkt, 13+→1pkt
 
-Organizatorzy: Pomorskie Zrzeszenie LZS, Muzeum Sportu Wiejskiego w Łebczu, Powiatowy Zespół Szkół w Kłaninie, Powiatowe Centrum Kształcenia Zawodowego i Ustawicznego w Pucku, Starostwo Powiatowe w Pucku.
+ZGŁOSZENIA:
+Termin: do 3 października 2025 r.
+Email: esio13@poczta.onet.pl
+Wymagania: legitymacja szkolna, udział ucznia spoza szkoły = dyskwalifikacja całej drużyny
 
-Uroczyste otwarcie: 10:00, Biuro zawodów czynne od 9:00.
+KOSZTY:
+Brak wpisowego, transport pokrywa szkoła/samorząd
 
-Warunki udziału: Przesłanie listy zgłoszeniowej do 3 października 2025 roku. Każdy uczestnik musi posiadać legitymację szkolną. Zdyskwalifikowanie całej drużyny w przypadku udziału osoby niebędącej uczniem zgłaszanej szkoły.
-
-Nagrody: Medale uczestnictwa dla wszystkich, dyplomy i puchary dla najlepszych trzech zawodników w każdej konkurencji, dyplomy i nagrody rzeczowe (sprzęt sportowy) dla drużyn, ciepły posiłek oraz bezpłatne zwiedzanie Muzeum Sportu Wiejskiego w Łebczu.`,
-        location: 'Powiatowy Zespół Szkół w Kłaninie (Powiat Pucki), ul. Szkolna 4',
+NAGRODY:
+Medale uczestnictwa, dyplomy i puchary dla najlepszych, nagrody rzeczowe dla drużyn, ciepły posiłek, bezpłatne zwiedzanie Muzeum Sportu Wiejskiego w Łebczu`,
+        location: 'Powiatowy Zespół Szkół w Kłaninie, ul. Szkolna 4, 84-107 Kłanino',
         start_date: '2025-10-10',
         end_date: '2025-10-10',
         registration_deadline: '2025-10-03',
-        event_type: 'shooting' as const,
+        event_type: 'championship' as const,
         is_cyclic: true,
         cyclic_month: 10,
-        status: 'active',
+        status: 'published',
         regulations_pdf_url: null,
-        logo_url: '/lzs-logo.png',
+        logo_url: `${import.meta.env.BASE_URL}lzs-logo.png`,
         max_participants: 200,
         max_teams: 40,
-        organizer: 'Pomorskie Zrzeszenie LZS, Muzeum Sportu Wiejskiego w Łebczu, PZS w Kłaninie, PCKZiU w Pucku, Starostwo Powiatowe w Pucku',
-        contact_email: 'kontakt@lzs-pomorski.pl',
-        contact_phone: '+48 58 123 456 789'
+        organizer: 'Pomorskie Zrzeszenie LZS',
+        contact_email: 'esio13@poczta.onet.pl',
+        contact_phone: '+48 608 341 880',
+        patron_honorowy: 'Pomorski Kurator Oświaty',
+        organizatorzy: 'Pomorskie Zrzeszenie LZS, Muzeum Sportu Wiejskiego w Łebczu, Powiatowy Zespół Szkół w Kłaninie, Powiatowe Centrum Kształcenia Zawodowego i Ustawicznego w Pucku, Starostwo Powiatowe w Pucku',
+        contact_person_1_name: 'Wiesław Oberzig',
+        contact_person_1_title: 'Wiceprezes PZ LZS, nauczyciel PZS w Kłaninie',
+        contact_person_1_phone: '608-341-880',
+        contact_person_2_name: 'Jan Trofimowicz',
+        contact_person_2_title: 'Wiceprezes PZ LZS, nauczyciel w PZKZiU w Pucku',
+        contact_person_2_phone: '508-738-161',
+        event_rules: `WARUNKI UDZIAŁU:
+- Każdy uczestnik musi mieć legitymację szkolną
+- Udział ucznia spoza szkoły = dyskwalifikacja całej drużyny
+- Obowiązek udziału we wszystkich konkurencjach
+- Strój sportowy obowiązkowy
+- Oświadczenia zdrowotne wymagane w dniu zawodów
+
+REMISY:
+- Strzelectwo: porównanie wyników z jednej broni lub dogrywka
+- Rzut granatem: pomiar od środka koła - bliższy rzut wygrywa
+- Bieg przełajowy: foto-finisz lub decyzja sędziego
+- Drużynowa: dodatkowe kryteria (np. liczba pierwszych miejsc)`
       })
       .select()
       .single();
@@ -72,77 +100,49 @@ Nagrody: Medale uczestnictwa dla wszystkich, dyplomy i puchary dla najlepszych t
     if (ageCategoryError) throw ageCategoryError;
     console.log('Created age category:', ageCategory.id);
 
-    // Competitions
+    // Competitions - zgodnie z regulaminem
     const competitions = [
       {
         event_id: wDycheEvent.id,
-        name: 'Strzelectwo - Broń Krótka',
-        description: '5 strzałów z broni krótkiej w pozycji stojącej z odległości 5 metrów. Przed zawodami 5 strzałów próbnych.',
-        rules: 'Każdy zawodnik oddaje 5 strzałów. Punktacja: suma punktów ze wszystkich strzałów.',
+        name: 'Strzelectwo',
+        description: 'Każdy zawodnik oddaje 5 strzałów z broni krótkiej i 5 strzałów z broni długiej (pozycja stojąca, 5 metrów). Do klasyfikacji liczy się suma punktów z obu serii. Przed strzelaniem zawodnik ma 5 strzałów próbnych (nie liczą się do punktacji).',
+        rules: 'Przy remisie można porównać wyniki z jednej broni albo wprowadzić dogrywkę (decyzja organizatora).',
         metric_type: 'points' as MetricType,
         aggregation_type: 'sum' as AggregationType,
-        attempts_count: 5,
+        attempts_count: 10,
         is_team_competition: false,
         team_size: 1,
-        scoring_formula: 'SUM(raw_value)',
-        penalty_rules: null,
+        scoring_formula: 'SUM(bron_krotka) + SUM(bron_dluga)',
+        penalty_rules: 'Przy remisie: porównanie wyników z jednej broni lub dogrywka',
         sort_order: 1
       },
       {
         event_id: wDycheEvent.id,
-        name: 'Strzelectwo - Broń Długa',
-        description: '5 strzałów z broni długiej w pozycji stojącej z odległości 5 metrów.',
-        rules: 'Każdy zawodnik oddaje 5 strzałów. Punktacja: suma punktów ze wszystkich strzałów.',
-        metric_type: 'points' as MetricType,
-        aggregation_type: 'sum' as AggregationType,
-        attempts_count: 5,
-        is_team_competition: false,
-        team_size: 1,
-        scoring_formula: 'SUM(raw_value)',
-        penalty_rules: null,
-        sort_order: 2
-      },
-      {
-        event_id: wDycheEvent.id,
-        name: 'Rzut Granatem - Dziewczęta',
-        description: 'Rzut granatem z odległości 15 metrów. 3 próby.',
-        rules: 'Dziewczęta rzucają z 15m. Punktacja według trafienia w koła: 3, 2, 1 pkt. Przy remisie liczy się mniejsza odległość od środka.',
-        metric_type: 'points' as MetricType,
-        aggregation_type: 'best_attempt' as AggregationType,
-        attempts_count: 3,
-        is_team_competition: false,
-        team_size: 1,
-        scoring_formula: 'MAX(raw_value)',
-        penalty_rules: 'Przy remisie mierzy się odległość od środka',
-        sort_order: 3
-      },
-      {
-        event_id: wDycheEvent.id,
-        name: 'Rzut Granatem - Chłopcy',
-        description: 'Rzut granatem z odległości 20 metrów. 3 próby.',
-        rules: 'Chłopcy rzucają z 20m. Punktacja według trafienia w koła: 3, 2, 1 pkt. Przy remisie liczy się mniejsza odległość od środka.',
-        metric_type: 'points' as MetricType,
-        aggregation_type: 'best_attempt' as AggregationType,
-        attempts_count: 3,
-        is_team_competition: false,
-        team_size: 1,
-        scoring_formula: 'MAX(raw_value)',
-        penalty_rules: 'Przy remisie mierzy się odległość od środka',
-        sort_order: 4
-      },
-      {
-        event_id: wDycheEvent.id,
-        name: 'Bieg Przełajowy',
-        description: 'Bieg przełajowy na dystansie około 1000 metrów.',
-        rules: 'Wynik według kolejności na mecie. Punktacja dla drużyny: 1→15pkt, 2→13pkt, 3→11pkt, 4→10pkt, 5→9pkt, 6→8pkt, 7→7pkt, 8→6pkt, 9→5pkt, 10→4pkt, 11→3pkt, 12→2pkt, 13+→1pkt',
+        name: 'Bieg przełajowy',
+        description: 'Dystans: ok. 1000 m. Prowadzona jest tylko klasyfikacja miejsc (nie ma dodatkowych punktów do sumy). Troje najlepszych dziewcząt i chłopców dostaje nagrody.',
+        rules: 'Klasyfikacja wg miejsca na mecie, przy identycznym czasie decyduje foto-finisz lub decyzja sędziego.',
         metric_type: 'time' as MetricType,
         aggregation_type: 'best_attempt' as AggregationType,
         attempts_count: 1,
         is_team_competition: false,
         team_size: 1,
         scoring_formula: 'RANK based on time',
-        penalty_rules: null,
-        sort_order: 5
+        penalty_rules: 'Przy identycznym czasie: foto-finisz lub decyzja sędziego',
+        sort_order: 2
+      },
+      {
+        event_id: wDycheEvent.id,
+        name: 'Rzut granatem do celu',
+        description: 'Dziewczęta: rzut z 15 m, chłopcy: rzut z 20 m. Cel: trzy koła o średnicy 1 m, 2 m, 3 m. Punktacja: trafienie do środka = 3 pkt, do drugiego koła = 2 pkt, do trzeciego = 1 pkt. Każdy uczestnik wykonuje 3 rzuty.',
+        rules: 'Przy remisie: decyduje pomiar od środka koła – bliższe trafienie wygrywa.',
+        metric_type: 'points' as MetricType,
+        aggregation_type: 'sum' as AggregationType,
+        attempts_count: 3,
+        is_team_competition: false,
+        team_size: 1,
+        scoring_formula: 'SUM(rzut1 + rzut2 + rzut3)',
+        penalty_rules: 'Przy remisie: pomiar od środka koła - bliższy rzut wygrywa',
+        sort_order: 3
       }
     ];
 

@@ -1,5 +1,8 @@
-import { useState } from "react";
-import { Header } from "@/components/Header";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { StandardHeader } from "@/components/StandardHeader";
+import { generateTeamRegistrationPDF } from "@/components/PDFGenerator";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -31,38 +34,99 @@ interface Competitor {
 }
 
 const TeamPanel = () => {
-  const [competitors, setCompetitors] = useState<Competitor[]>([
-    {
-      id: '1',
-      firstName: 'Anna',
-      lastName: 'Kowalska',
-      birthYear: 2008,
-      category: 'U-16',
-      gender: 'K',
-      competitions: ['Strzelectwo - broń krótka', 'Rzut granatem']
-    },
-    {
-      id: '2',
-      firstName: 'Piotr',
-      lastName: 'Nowak',
-      birthYear: 2006,
-      category: 'U-18',
-      gender: 'M',
-      competitions: ['Strzelectwo - broń długa', 'Bieg przełajowy']
-    }
-  ]);
+  const { teamId } = useParams<{ teamId: string }>();
+  const navigate = useNavigate();
+  
+  const [teamInfo, setTeamInfo] = useState<any>(null);
+  const [competitors, setCompetitors] = useState<Competitor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [eventInfo, setEventInfo] = useState<any>(null);
 
-  const [teamInfo, setTeamInfo] = useState({
-    name: 'SP nr 15 Gdynia',
-    type: 'Szkoła podstawowa',
-    supervisor: 'Maria Wiśniewska',
-    email: 'maria.wisniewska@sp15.gdynia.pl',
-    phone: '+48 123 456 789'
-  });
+  useEffect(() => {
+    if (teamId) {
+      loadTeamData();
+    }
+  }, [teamId]);
+
+  const loadTeamData = async () => {
+    if (!teamId) return;
+
+    try {
+      // Load team info
+      const { data: team, error: teamError } = await supabase
+        .from('teams')
+        .select('*')
+        .eq('id', teamId)
+        .single();
+
+      if (teamError) throw teamError;
+
+      setTeamInfo(team);
+
+      // Load event info
+      const { data: event, error: eventError } = await supabase
+        .from('events')
+        .select('*')
+        .eq('id', team.event_id)
+        .single();
+
+      if (eventError) throw eventError;
+      setEventInfo(event);
+
+      // Load competitors
+      const { data: participants, error: participantsError } = await supabase
+        .from('participants')
+        .select('*')
+        .eq('team_id', teamId);
+
+      if (participantsError) throw participantsError;
+
+      const formattedCompetitors = participants.map(p => ({
+        id: p.id,
+        firstName: p.first_name,
+        lastName: p.last_name,
+        birthYear: p.birth_year,
+        category: p.birth_year >= 2008 ? 'U-16' : 'U-18',
+        gender: p.gender,
+        competitions: p.competitions || []
+      }));
+
+      setCompetitors(formattedCompetitors);
+    } catch (error) {
+      console.error('Error loading team data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-muted-foreground">Ładowanie danych drużyny...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!teamInfo) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+        <Card className="max-w-md">
+          <CardContent className="pt-6 text-center">
+            <p className="text-muted-foreground">Drużyna nie została znaleziona</p>
+            <Button onClick={() => navigate('/')} className="mt-4">
+              Wróć do strony głównej
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const applicationStatus = {
-    status: 'accepted',
-    submittedAt: '10 października 2024, 14:30',
+    status: teamInfo.status || 'draft',
+    submittedAt: teamInfo.submitted_at ? new Date(teamInfo.submitted_at).toLocaleString('pl-PL') : 'Nie wysłano',
     documentsComplete: true,
     competitorsCount: competitors.length,
     maxCompetitors: 6
@@ -86,14 +150,17 @@ const TeamPanel = () => {
   const statusInfo = getStatusInfo(applicationStatus.status);
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
-      <Header 
-        userRole="Opiekun drużyny" 
-        userName="Maria Wiśniewska"
-        notifications={2}
+    <div className="page-container">
+      <StandardHeader 
+        title="Panel Drużyny"
+        subtitle="Zarządzanie drużyną i uczestnikami"
+        showNavigation={true}
+        showUserInfo={true}
+        showNotifications={true}
+        notifications={0}
       />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="page-content">
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -234,7 +301,7 @@ const TeamPanel = () => {
                       <Label htmlFor="teamName">Nazwa drużyny</Label>
                       <Input 
                         id="teamName" 
-                        value={teamInfo.name}
+                        value={teamInfo.name || ''}
                         onChange={(e) => setTeamInfo({...teamInfo, name: e.target.value})}
                       />
                     </div>
@@ -242,7 +309,7 @@ const TeamPanel = () => {
                       <Label htmlFor="teamType">Typ organizacji</Label>
                       <Input 
                         id="teamType" 
-                        value={teamInfo.type}
+                        value={teamInfo.type || ''}
                         onChange={(e) => setTeamInfo({...teamInfo, type: e.target.value})}
                       />
                     </div>
@@ -250,8 +317,8 @@ const TeamPanel = () => {
                       <Label htmlFor="supervisor">Opiekun drużyny</Label>
                       <Input 
                         id="supervisor" 
-                        value={teamInfo.supervisor}
-                        onChange={(e) => setTeamInfo({...teamInfo, supervisor: e.target.value})}
+                        value={teamInfo.supervisor_name || ''}
+                        onChange={(e) => setTeamInfo({...teamInfo, supervisor_name: e.target.value})}
                       />
                     </div>
                     <div className="space-y-2">
@@ -259,16 +326,16 @@ const TeamPanel = () => {
                       <Input 
                         id="email" 
                         type="email" 
-                        value={teamInfo.email}
-                        onChange={(e) => setTeamInfo({...teamInfo, email: e.target.value})}
+                        value={teamInfo.supervisor_email || ''}
+                        onChange={(e) => setTeamInfo({...teamInfo, supervisor_email: e.target.value})}
                       />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="phone">Telefon</Label>
                       <Input 
                         id="phone" 
-                        value={teamInfo.phone}
-                        onChange={(e) => setTeamInfo({...teamInfo, phone: e.target.value})}
+                        value={teamInfo.supervisor_phone || ''}
+                        onChange={(e) => setTeamInfo({...teamInfo, supervisor_phone: e.target.value})}
                       />
                     </div>
                   </div>
@@ -300,7 +367,73 @@ const TeamPanel = () => {
                       <p className="text-sm text-muted-foreground mb-3">
                         Oficjalna lista zawodników do wydruku
                       </p>
-                      <Button variant="outline" className="w-full">
+                      <Button 
+                        variant="outline" 
+                        className="w-full"
+                        onClick={() => {
+                          if (teamInfo && eventInfo) {
+                            const pdfContent = generateTeamRegistrationPDF(
+                              { ...teamInfo, event_name: eventInfo.name },
+                              competitors
+                            );
+                            
+                            // Create a temporary element to render the PDF content
+                            const tempDiv = document.createElement('div');
+                            tempDiv.style.position = 'absolute';
+                            tempDiv.style.left = '-9999px';
+                            tempDiv.style.top = '0';
+                            tempDiv.style.width = '800px';
+                            tempDiv.style.backgroundColor = 'white';
+                            tempDiv.style.padding = '20px';
+                            tempDiv.style.fontFamily = 'Arial, sans-serif';
+                            
+                            // Render the content
+                            const { createRoot } = require('react-dom/client');
+                            const root = createRoot(tempDiv);
+                            root.render(pdfContent);
+                            
+                            document.body.appendChild(tempDiv);
+                            
+                            // Generate PDF using jsPDF
+                            setTimeout(async () => {
+                              const { jsPDF } = await import('jspdf');
+                              const html2canvas = (await import('html2canvas')).default;
+                              
+                              const canvas = await html2canvas(tempDiv, {
+                                scale: 2,
+                                useCORS: true,
+                                allowTaint: true,
+                                backgroundColor: '#ffffff'
+                              });
+                              
+                              const imgData = canvas.toDataURL('image/png');
+                              const pdf = new jsPDF('p', 'mm', 'a4');
+                              const imgWidth = 210;
+                              const pageHeight = 295;
+                              const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                              let heightLeft = imgHeight;
+                              
+                              let position = 0;
+                              
+                              pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                              heightLeft -= pageHeight;
+                              
+                              while (heightLeft >= 0) {
+                                position = heightLeft - imgHeight;
+                                pdf.addPage();
+                                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                                heightLeft -= pageHeight;
+                              }
+                              
+                              pdf.save(`zgłoszenie-${teamInfo.name}.pdf`);
+                              
+                              // Cleanup
+                              document.body.removeChild(tempDiv);
+                              root.unmount();
+                            }, 1000);
+                          }
+                        }}
+                      >
                         <Download className="h-4 w-4 mr-2" />
                         Pobierz PDF
                       </Button>

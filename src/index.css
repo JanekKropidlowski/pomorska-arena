@@ -23,6 +23,12 @@ All colors MUST be HSL.
     --primary-foreground: 0 0% 100%;
     --primary-hover: 140 67% 30%;
     --primary-light: 140 67% 95%;
+    
+    /* Brand colors from memory */
+    --brand-primary: 140 67% 35%; /* #1F9347 */
+    --brand-primary-light: 140 67% 45%; /* #2BAF5A */
+    --brand-primary-dark: 140 67% 25%; /* #1A7A3A */
+    --brand-accent: 50 100% 50%; /* #fecc00 */
 
     --secondary: 220 13% 96%;
     --secondary-foreground: 220 13% 18%;
@@ -132,7 +138,8 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground font-poppins;
+    @apply bg-background text-foreground;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
   }
 
   /* Custom animations for sports system */
@@ -146,5 +153,96 @@ All colors MUST be HSL.
 
   .animate-scale-in {
     @apply animate-in zoom-in-95 duration-200;
+  }
+
+  /* Mobile-first responsive utilities */
+  .mobile-container {
+    @apply px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto;
+  }
+
+  .mobile-text {
+    @apply text-sm sm:text-base;
+  }
+
+  .mobile-heading {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+
+  .mobile-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4;
+  }
+
+  /* Standardized container widths */
+  .container-standard {
+    @apply mx-auto px-4 sm:px-6 lg:px-8;
+    max-width: 1300px;
+  }
+
+  .container-narrow {
+    @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .container-wide {
+    @apply max-w-full mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Standardized page layouts */
+  .page-container {
+    @apply min-h-screen bg-gradient-subtle;
+  }
+
+  .page-header {
+    @apply bg-background border-b shadow-sm;
+  }
+
+  .page-content {
+    @apply container-standard py-8;
+  }
+
+  .page-section {
+    @apply space-y-6;
+  }
+
+  /* Standardized card styles */
+  .card-standard {
+    @apply bg-white rounded-lg border border-gray-200 shadow-sm;
+  }
+
+  .card-header-standard {
+    @apply px-6 py-4 border-b border-gray-200;
+  }
+
+  .card-content-standard {
+    @apply px-6 py-4;
+  }
+
+  /* Standardized button styles */
+  .btn-primary {
+    @apply bg-brand-primary hover:bg-brand-primary-dark text-white px-4 py-2 rounded-md font-medium transition-colors;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-100 hover:bg-gray-200 text-gray-900 px-4 py-2 rounded-md font-medium transition-colors;
+  }
+
+  .btn-outline {
+    @apply border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-md font-medium transition-colors;
+  }
+
+  /* Brand color utilities */
+  .text-brand-primary {
+    color: hsl(var(--brand-primary));
+  }
+
+  .bg-brand-primary {
+    background-color: hsl(var(--brand-primary));
+  }
+
+  .text-brand-accent {
+    color: hsl(var(--brand-accent));
+  }
+
+  .bg-brand-accent {
+    background-color: hsl(var(--brand-accent));
   }
 }

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Header } from "@/components/Header";
+import { useState, useEffect } from "react";
+import { StandardHeader } from "@/components/StandardHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Target, 
-  QrCode, 
   Save, 
   CheckCircle,
   X,
@@ -16,8 +15,16 @@ import {
   AlertTriangle,
   Trophy,
   User,
-  Camera
+  Search,
+  BarChart3,
+  Eye,
+  Edit
 } from "lucide-react";
+import { useEvents } from "@/hooks/useEvents";
+import { useRegistrations } from "@/hooks/useRegistrations";
+import { useCompetitions } from "@/hooks/useCompetitions";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CompetitorResult {
   id: string;
@@ -33,376 +40,456 @@ interface CompetitorResult {
 }
 
 const JudgePanel = () => {
-  const [selectedCompetition, setSelectedCompetition] = useState('pistol');
-  const [competitors, setCompetitors] = useState<CompetitorResult[]>([
-    {
-      id: '1',
-      startNumber: 101,
-      firstName: 'Anna',
-      lastName: 'Kowalska',
-      team: 'SP nr 15 Gdynia',
-      category: 'Dziewczęta U-16',
-      result: '95',
-      status: 'finished',
-      scores: [18, 19, 20, 19, 19],
-      notes: 'Bardzo dobry wynik'
-    },
-    {
-      id: '2',
-      startNumber: 102,
-      firstName: 'Piotr',
-      lastName: 'Nowak',
-      team: 'LO Sopot',
-      category: 'Chłopcy U-18',
-      status: 'competing',
-      scores: [17, 18, 0, 0, 0]
-    },
-    {
-      id: '3',
-      startNumber: 103,
-      firstName: 'Maria',
-      lastName: 'Wiśniewska',
-      team: 'SP nr 8 Gdańsk',
-      category: 'Dziewczęta U-16',
-      status: 'waiting',
-      scores: [0, 0, 0, 0, 0]
-    },
-    {
-      id: '4',
-      startNumber: 104,
-      firstName: 'Jakub',
-      lastName: 'Kowalczyk',
-      team: 'Technikum Gdynia',
-      category: 'Chłopcy U-18',
-      status: 'dns',
-      scores: [0, 0, 0, 0, 0],
-      notes: 'Nieobecność usprawiedliwiona'
-    }
-  ]);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [selectedCompetitionId, setSelectedCompetitionId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [competitors, setCompetitors] = useState<CompetitorResult[]>([]);
+  const { toast } = useToast();
+  
+  // Pobierz dane z bazy
+  const { events, loading: eventsLoading } = useEvents();
+  const { registrations, loading: registrationsLoading, refetch: refetchRegistrations } = useRegistrations(selectedEventId);
+  const { competitions, loading: competitionsLoading } = useCompetitions(selectedEventId);
 
-  const competitions = [
-    { id: 'pistol', name: 'Strzelectwo - broń krótka', maxScore: 100 },
-    { id: 'rifle', name: 'Strzelectwo - broń długa', maxScore: 100 },
-    { id: 'grenade', name: 'Rzut granatem', maxScore: 6 },
-    { id: 'run', name: 'Bieg przełajowy', unit: 'czas' }
-  ];
+  // Wybierz pierwsze wydarzenie jeśli nie ma wybranego
+  useEffect(() => {
+    if (events.length > 0 && !selectedEventId) {
+      setSelectedEventId(events[0].id);
+    }
+  }, [events, selectedEventId]);
+
+  // Wybierz pierwszą konkurencję jeśli nie ma wybranej
+  useEffect(() => {
+    if (competitions.length > 0 && !selectedCompetitionId) {
+      setSelectedCompetitionId(competitions[0].id);
+    }
+  }, [competitions, selectedCompetitionId]);
+
+  // Konwertuj rejestracje na format dla sędziów
+  useEffect(() => {
+    if (registrations.length > 0) {
+      const competitorsData = registrations
+        .filter(reg => reg.status === 'approved')
+        .map((reg, index) => ({
+          id: reg.id,
+          startNumber: reg.start_number || (index + 1),
+          firstName: reg.participants?.first_name || 'Nieznane',
+          lastName: reg.participants?.last_name || 'Nieznane',
+          team: reg.teams?.name || 'Nieznana drużyna',
+          category: reg.age_categories?.name || 'Nieznana kategoria',
+          status: 'waiting' as const,
+          scores: [0, 0, 0, 0, 0],
+          notes: reg.notes || ''
+        }));
+      setCompetitors(competitorsData);
+    }
+  }, [registrations]);
+
+  const handleScoreChange = (competitorId: string, scoreIndex: number, value: string) => {
+    const numValue = parseFloat(value) || 0;
+    setCompetitors(prev => prev.map(comp => 
+      comp.id === competitorId 
+        ? { 
+            ...comp, 
+            scores: comp.scores.map((score, idx) => idx === scoreIndex ? numValue : score),
+            status: 'competing' as const
+          }
+        : comp
+    ));
+  };
+
+  const handleSaveResult = async (competitorId: string) => {
+    try {
+      const competitor = competitors.find(c => c.id === competitorId);
+      if (!competitor || !selectedCompetitionId) return;
+
+      const totalScore = competitor.scores.reduce((sum, score) => sum + score, 0);
+      
+      // Zapisz wynik do bazy danych
+      const { error } = await supabase
+        .from('results')
+        .insert({
+          competition_id: selectedCompetitionId,
+          registration_id: competitorId,
+          raw_value: totalScore,
+          processed_value: totalScore,
+          status: 'valid',
+          recorded_at: new Date().toISOString(),
+          recorded_by: 'judge',
+          notes: competitor.notes
+        });
+
+      if (error) throw error;
+
+      // Zaktualizuj status zawodnika
+      setCompetitors(prev => prev.map(comp => 
+        comp.id === competitorId 
+          ? { ...comp, status: 'finished' as const, result: totalScore.toString() }
+          : comp
+      ));
+
+      toast({
+        title: "Wynik zapisany",
+        description: `Wynik ${totalScore} punktów został zapisany`,
+      });
+
+    } catch (error) {
+      console.error('Error saving result:', error);
+      toast({
+        title: "Błąd",
+        description: "Nie udało się zapisać wyniku",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleStatusChange = (competitorId: string, status: 'waiting' | 'competing' | 'finished' | 'dns' | 'dq') => {
+    setCompetitors(prev => prev.map(comp => 
+      comp.id === competitorId 
+        ? { ...comp, status }
+        : comp
+    ));
+  };
 
   const getStatusInfo = (status: string) => {
     switch (status) {
       case 'waiting':
-        return { label: 'Oczekuje', color: 'bg-muted text-muted-foreground', icon: Clock };
+        return { text: 'Oczekuje', variant: 'secondary', icon: Clock };
       case 'competing':
-        return { label: 'Startuje', color: 'bg-warning text-warning-foreground', icon: Target };
+        return { text: 'Startuje', variant: 'default', icon: Target };
       case 'finished':
-        return { label: 'Zakończył', color: 'bg-success text-success-foreground', icon: CheckCircle };
+        return { text: 'Zakończył', variant: 'default', icon: CheckCircle };
       case 'dns':
-        return { label: 'DNS', color: 'bg-destructive text-destructive-foreground', icon: X };
+        return { text: 'DNS', variant: 'destructive', icon: X };
       case 'dq':
-        return { label: 'DQ', color: 'bg-destructive text-destructive-foreground', icon: AlertTriangle };
+        return { text: 'DQ', variant: 'destructive', icon: AlertTriangle };
       default:
-        return { label: 'Nieznany', color: 'bg-muted text-muted-foreground', icon: Clock };
+        return { text: 'Nieznany', variant: 'secondary', icon: Clock };
     }
   };
 
-  const updateCompetitorScore = (competitorId: string, scoreIndex: number, value: number) => {
-    setCompetitors(prev => prev.map(comp => {
-      if (comp.id === competitorId) {
-        const newScores = [...comp.scores];
-        newScores[scoreIndex] = value;
-        const result = newScores.reduce((sum, score) => sum + score, 0).toString();
-        return { ...comp, scores: newScores, result, status: 'finished' as const };
-      }
-      return comp;
-    }));
-  };
+  const filteredCompetitors = competitors.filter(comp => 
+    comp.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    comp.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    comp.team.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    comp.startNumber.toString().includes(searchTerm)
+  );
 
-  const updateCompetitorStatus = (competitorId: string, status: CompetitorResult['status']) => {
-    setCompetitors(prev => prev.map(comp => 
-      comp.id === competitorId ? { ...comp, status } : comp
-    ));
-  };
-
-  const currentCompetition = competitions.find(c => c.id === selectedCompetition);
+  const selectedEvent = events.find(e => e.id === selectedEventId);
+  const selectedCompetition = competitions.find(c => c.id === selectedCompetitionId);
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
-      <Header 
-        userRole="Sędzia" 
-        userName="Jan Sędziowski"
-        notifications={1}
+    <div className="page-container">
+      <StandardHeader 
+        title="Panel Sędziego"
+        subtitle="Wprowadzanie wyników konkurencji"
+        showNavigation={true}
+        showUserInfo={true}
+        showNotifications={true}
+        notifications={competitors.filter(c => c.status === 'competing').length}
       />
       
-      <main className="container mx-auto px-4 py-8">
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Panel Sędziego</h1>
-              <p className="text-muted-foreground">
-                Wprowadzanie wyników i zarządzanie konkurencją
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Badge className="bg-primary text-primary-foreground">
-                <Target className="h-3 w-3 mr-1" />
-                Aktywna konkurencja
-              </Badge>
-              <Button variant="outline" size="sm">
-                <QrCode className="h-4 w-4 mr-2" />
-                Skanuj QR
-              </Button>
-            </div>
-          </div>
-
-          {/* Competition Selection */}
-          <Card>
+      <main className="page-content">
+        <div className="page-section">
+          {/* Selektor wydarzeń */}
+          <Card className="mb-6">
             <CardHeader>
-              <CardTitle>Wybierz konkurencję</CardTitle>
+              <CardTitle className="text-lg">Wybór wydarzenia</CardTitle>
               <CardDescription>
-                Przełączaj między przypisanymi konkurencjami
+                Wybierz wydarzenie, dla którego chcesz sędziować
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                {competitions.map((comp) => (
-                  <Button
-                    key={comp.id}
-                    variant={selectedCompetition === comp.id ? "competition" : "outline"}
-                    onClick={() => setSelectedCompetition(comp.id)}
-                    className="justify-start"
-                  >
-                    <Trophy className="h-4 w-4 mr-2" />
-                    {comp.name}
-                  </Button>
-                ))}
+              <div className="flex items-center gap-4">
+                <select
+                  value={selectedEventId || ''}
+                  onChange={(e) => setSelectedEventId(e.target.value || null)}
+                  className="flex-1 h-10 px-3 rounded-md border border-input bg-background text-sm"
+                >
+                  <option value="">Wybierz wydarzenie...</option>
+                  {events.map((event) => (
+                    <option key={event.id} value={event.id}>
+                      {event.name} ({new Date(event.start_date).toLocaleDateString('pl-PL')})
+                    </option>
+                  ))}
+                </select>
+                {selectedEvent && (
+                  <div className="text-sm text-muted-foreground">
+                    Wybrane: <span className="font-medium text-foreground">{selectedEvent.name}</span>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
 
-          <Tabs defaultValue="results" className="space-y-4">
+          <Tabs defaultValue="competition" className="space-y-4">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="results">Wprowadzanie wyników</TabsTrigger>
-              <TabsTrigger value="startlist">Lista startowa</TabsTrigger>
-              <TabsTrigger value="summary">Podsumowanie</TabsTrigger>
+              <TabsTrigger value="competition">Konkurencja</TabsTrigger>
+              <TabsTrigger value="competitors">Zawodnicy</TabsTrigger>
+              <TabsTrigger value="results">Wyniki</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="results" className="space-y-4">
+            {/* KONKURENCJA */}
+            <TabsContent value="competition" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>{currentCompetition?.name}</CardTitle>
+                  <CardTitle>Wybór konkurencji</CardTitle>
                   <CardDescription>
-                    Wprowadź wyniki dla poszczególnych zawodników
+                    Wybierz konkurencję do sędziowania
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {competitors.map((competitor) => {
-                      const statusInfo = getStatusInfo(competitor.status);
-                      
-                      return (
-                        <div key={competitor.id} className="border rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-4">
-                            <div className="flex items-center gap-4">
-                              <div className="w-12 h-12 rounded-full bg-primary-light flex items-center justify-center font-bold text-primary">
-                                {competitor.startNumber}
-                              </div>
-                              <div>
-                                <h4 className="font-medium">
-                                  {competitor.firstName} {competitor.lastName}
-                                </h4>
-                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                  <span>{competitor.team}</span>
-                                  <span>•</span>
-                                  <span>{competitor.category}</span>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Badge className={statusInfo.color}>
-                                <statusInfo.icon className="h-3 w-3 mr-1" />
-                                {statusInfo.label}
-                              </Badge>
-                              {competitor.result && (
-                                <Badge className="bg-success text-success-foreground text-lg px-3">
-                                  {competitor.result} pkt
-                                </Badge>
-                              )}
+                  {competitionsLoading ? (
+                    <p className="text-center text-muted-foreground py-8">Ładowanie konkurencji...</p>
+                  ) : competitions.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Trophy className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                      <p className="text-muted-foreground mb-4">Brak konkurencji</p>
+                      <p className="text-sm text-muted-foreground">
+                        {selectedEvent ? `Dla wydarzenia: ${selectedEvent.name}` : 'Wybierz wydarzenie'}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {competitions.map((competition) => (
+                        <Card 
+                          key={competition.id} 
+                          className={`p-4 cursor-pointer transition-all hover:shadow-lg ${
+                            selectedCompetitionId === competition.id 
+                              ? 'ring-2 ring-blue-500 bg-blue-50' 
+                              : 'hover:bg-gray-50'
+                          }`}
+                          onClick={() => setSelectedCompetitionId(competition.id)}
+                        >
+                          <div className="flex items-center gap-3 mb-3">
+                            <Trophy className="h-8 w-8 text-blue-600" />
+                            <div>
+                              <h4 className="font-semibold">{competition.name}</h4>
+                              <p className="text-sm text-muted-foreground">
+                                {competition.metric_type === 'points' ? 'Punkty' :
+                                 competition.metric_type === 'time' ? 'Czas' :
+                                 competition.metric_type === 'distance' ? 'Odległość' :
+                                 competition.metric_type === 'count' ? 'Liczba' : 'Dokładność'}
+                              </p>
                             </div>
                           </div>
+                          <p className="text-sm text-muted-foreground mb-3">
+                            {competition.description}
+                          </p>
+                          <Badge variant={selectedCompetitionId === competition.id ? 'default' : 'outline'}>
+                            {selectedCompetitionId === competition.id ? 'Wybrana' : 'Wybierz'}
+                          </Badge>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-                          {selectedCompetition === 'pistol' && (
-                            <div className="space-y-3">
-                              <Label>Wyniki strzelania (5 strzałów)</Label>
-                              <div className="grid grid-cols-5 gap-2">
-                                {competitor.scores.map((score, index) => (
-                                  <div key={index} className="space-y-1">
-                                    <Label className="text-xs">Strzał {index + 1}</Label>
-                                    <Input
-                                      type="number"
-                                      min="0"
-                                      max="20"
-                                      value={score || ''}
-                                      onChange={(e) => updateCompetitorScore(
-                                        competitor.id, 
-                                        index, 
-                                        parseInt(e.target.value) || 0
-                                      )}
-                                      placeholder="0-20"
-                                      disabled={competitor.status === 'dns' || competitor.status === 'dq'}
-                                    />
+            {/* ZAWODNICY */}
+            <TabsContent value="competitors" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>Lista zawodników</CardTitle>
+                      <CardDescription>
+                        {selectedCompetition ? `Konkurencja: ${selectedCompetition.name}` : 'Wybierz konkurencję'}
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Input
+                          placeholder="Szukaj zawodników..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="pl-10 w-64"
+                        />
+                      </div>
+                      <Button onClick={refetchRegistrations}>
+                        <BarChart3 className="h-4 w-4 mr-2" />
+                        Odśwież
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {registrationsLoading ? (
+                    <p className="text-center text-muted-foreground py-8">Ładowanie zawodników...</p>
+                  ) : filteredCompetitors.length === 0 ? (
+                    <div className="text-center py-12">
+                      <User className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                      <p className="text-muted-foreground mb-4">Brak zawodników</p>
+                      <p className="text-sm text-muted-foreground">
+                        {selectedEvent ? `Dla wydarzenia: ${selectedEvent.name}` : 'Wybierz wydarzenie'}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {filteredCompetitors.map((competitor) => {
+                        const statusInfo = getStatusInfo(competitor.status);
+                        const totalScore = competitor.scores.reduce((sum, score) => sum + score, 0);
+                        
+                        return (
+                          <div key={competitor.id} className="border rounded-lg p-4 hover:shadow-lg transition-shadow">
+                            <div className="flex items-start justify-between mb-3">
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-lg mb-2">
+                                  #{competitor.startNumber} {competitor.firstName} {competitor.lastName}
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                  <div className="space-y-1">
+                                    <p><strong>Drużyna:</strong> {competitor.team}</p>
+                                    <p><strong>Kategoria:</strong> {competitor.category}</p>
                                   </div>
-                                ))}
+                                  <div className="space-y-1">
+                                    <p><strong>Wynik:</strong> {totalScore} punktów</p>
+                                    <p><strong>Status:</strong> {statusInfo.text}</p>
+                                  </div>
+                                </div>
+                                
+                                {/* Pola do wprowadzania wyników */}
+                                <div className="mt-4">
+                                  <Label className="text-sm font-medium">Wyniki:</Label>
+                                  <div className="flex gap-2 mt-2">
+                                    {competitor.scores.map((score, index) => (
+                                      <Input
+                                        key={index}
+                                        type="number"
+                                        value={score || ''}
+                                        onChange={(e) => handleScoreChange(competitor.id, index, e.target.value)}
+                                        placeholder={`${index + 1}`}
+                                        className="w-16 text-center"
+                                        disabled={competitor.status === 'dns' || competitor.status === 'dq'}
+                                      />
+                                    ))}
+                                  </div>
+                                </div>
+                                
+                                {competitor.notes && (
+                                  <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded text-sm">
+                                    <strong>Uwagi:</strong> {competitor.notes}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="ml-4">
+                                <Badge variant={statusInfo.variant as any} className="mb-2">
+                                  {statusInfo.text}
+                                </Badge>
                               </div>
                             </div>
-                          )}
-
-                          <div className="flex items-center justify-between mt-4">
-                            <div className="flex gap-2">
+                            
+                            <div className="flex flex-wrap gap-2 pt-3 border-t">
                               <Button 
-                                variant="outline" 
                                 size="sm"
-                                onClick={() => updateCompetitorStatus(competitor.id, 'dns')}
+                                onClick={() => handleSaveResult(competitor.id)}
+                                disabled={competitor.status === 'dns' || competitor.status === 'dq'}
+                                className="bg-green-600 hover:bg-green-700"
+                              >
+                                <Save className="h-4 w-4 mr-1" />
+                                Zapisz wynik
+                              </Button>
+                              <Button 
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleStatusChange(competitor.id, 'competing')}
+                                disabled={competitor.status === 'dns' || competitor.status === 'dq'}
+                              >
+                                <Target className="h-4 w-4 mr-1" />
+                                Startuje
+                              </Button>
+                              <Button 
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleStatusChange(competitor.id, 'dns')}
                               >
                                 <X className="h-4 w-4 mr-1" />
                                 DNS
                               </Button>
                               <Button 
-                                variant="destructive" 
                                 size="sm"
-                                onClick={() => updateCompetitorStatus(competitor.id, 'dq')}
+                                variant="outline"
+                                onClick={() => handleStatusChange(competitor.id, 'dq')}
                               >
                                 <AlertTriangle className="h-4 w-4 mr-1" />
                                 DQ
                               </Button>
                             </div>
-                            <Button variant="success" size="sm">
-                              <Save className="h-4 w-4 mr-1" />
-                              Zapisz wynik
-                            </Button>
                           </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
 
-            <TabsContent value="startlist" className="space-y-4">
+            {/* WYNIKI */}
+            <TabsContent value="results" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Lista startowa - {currentCompetition?.name}</CardTitle>
+                  <CardTitle>Podsumowanie wyników</CardTitle>
                   <CardDescription>
-                    Przegląd wszystkich zawodników w konkurencji
+                    Przeglądaj wprowadzone wyniki
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    {competitors.map((competitor) => {
-                      const statusInfo = getStatusInfo(competitor.status);
-                      return (
-                        <div key={competitor.id} className="flex items-center justify-between p-3 border rounded-lg">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded bg-primary-light flex items-center justify-center text-sm font-bold text-primary">
-                              {competitor.startNumber}
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <h4 className="font-semibold text-blue-800">Zakończyli</h4>
+                        <p className="text-2xl font-bold text-blue-600">
+                          {competitors.filter(c => c.status === 'finished').length}
+                        </p>
+                      </div>
+                      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <h4 className="font-semibold text-yellow-800">Startują</h4>
+                        <p className="text-2xl font-bold text-yellow-600">
+                          {competitors.filter(c => c.status === 'competing').length}
+                        </p>
+                      </div>
+                      <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                        <h4 className="font-semibold text-gray-800">Oczekują</h4>
+                        <p className="text-2xl font-bold text-gray-600">
+                          {competitors.filter(c => c.status === 'waiting').length}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h4 className="font-medium">Wyniki (posortowane według wyniku):</h4>
+                      {competitors
+                        .filter(c => c.status === 'finished')
+                        .sort((a, b) => {
+                          const scoreA = a.scores.reduce((sum, score) => sum + score, 0);
+                          const scoreB = b.scores.reduce((sum, score) => sum + score, 0);
+                          return scoreB - scoreA;
+                        })
+                        .map((competitor, index) => (
+                          <div key={competitor.id} className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                            <div className="flex items-center gap-4">
+                              <span className="font-bold text-lg">#{index + 1}</span>
+                              <span className="font-medium">
+                                #{competitor.startNumber} {competitor.firstName} {competitor.lastName}
+                              </span>
+                              <span className="text-sm text-muted-foreground">
+                                ({competitor.team})
+                              </span>
                             </div>
-                            <div>
-                              <p className="font-medium">
-                                {competitor.firstName} {competitor.lastName}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {competitor.team} • {competitor.category}
-                              </p>
+                            <div className="flex items-center gap-4">
+                              <span className="font-bold text-lg">
+                                {competitor.scores.reduce((sum, score) => sum + score, 0)} pkt
+                              </span>
+                              <Badge variant="default">
+                                <CheckCircle className="h-4 w-4 mr-1" />
+                                Zakończył
+                              </Badge>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            {competitor.result && (
-                              <span className="font-bold text-primary">{competitor.result} pkt</span>
-                            )}
-                            <Badge className={statusInfo.color}>
-                              <statusInfo.icon className="h-3 w-3 mr-1" />
-                              {statusInfo.label}
-                            </Badge>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="summary" className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-primary">
-                        {competitors.filter(c => c.status === 'finished').length}
-                      </p>
-                      <p className="text-sm text-muted-foreground">Zakończonych</p>
+                        ))}
                     </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-warning">
-                        {competitors.filter(c => c.status === 'waiting' || c.status === 'competing').length}
-                      </p>
-                      <p className="text-sm text-muted-foreground">Oczekujących</p>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-destructive">
-                        {competitors.filter(c => c.status === 'dns' || c.status === 'dq').length}
-                      </p>
-                      <p className="text-sm text-muted-foreground">DNS/DQ</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Karta sędziowska</CardTitle>
-                  <CardDescription>
-                    Podsumowanie konkurencji do wydruku
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <Label>Konkurencja:</Label>
-                      <p className="font-medium">{currentCompetition?.name}</p>
-                    </div>
-                    <div>
-                      <Label>Data:</Label>
-                      <p className="font-medium">15 października 2024</p>
-                    </div>
-                    <div>
-                      <Label>Sędzia:</Label>
-                      <p className="font-medium">Jan Sędziowski</p>
-                    </div>
-                    <div>
-                      <Label>Liczba zawodników:</Label>
-                      <p className="font-medium">{competitors.length}</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" className="flex-1">
-                      <Camera className="h-4 w-4 mr-2" />
-                      Generuj QR kod
-                    </Button>
-                    <Button variant="competition" className="flex-1">
-                      <Save className="h-4 w-4 mr-2" />
-                      Eksportuj kartę
-                    </Button>
                   </div>
                 </CardContent>
               </Card>

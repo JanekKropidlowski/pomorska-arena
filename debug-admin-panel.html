@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Admin Panel</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Debug Admin Panel - Test Nawigacji</h1>
+    
+    <div class="test">
+        <h3>1. Test logowania</h3>
+        <p>Zaloguj się jako admin: <strong>admin@lzs-pomorski.pl</strong> / <strong>admin123!</strong></p>
+        <button onclick="testLogin()">Test Logowania</button>
+        <div id="login-result"></div>
+    </div>
+    
+    <div class="test">
+        <h3>2. Test nawigacji</h3>
+        <p>Sprawdź czy funkcje nawigacji działają:</p>
+        <button onclick="testNavigateToOffice()">Przejdź do Panel Biura</button>
+        <button onclick="testNavigateToJudge()">Przejdź do Panel Sędziego</button>
+        <div id="nav-result"></div>
+    </div>
+    
+    <div class="test">
+        <h3>3. Test URL</h3>
+        <p>Sprawdź aktualny URL i czy można przejść do paneli:</p>
+        <button onclick="checkCurrentUrl()">Sprawdź URL</button>
+        <button onclick="goToOffice()">Idź do /office</button>
+        <button onclick="goToJudge()">Idź do /judge</button>
+        <div id="url-result"></div>
+    </div>
+    
+    <div class="test">
+        <h3>4. Test localStorage</h3>
+        <p>Sprawdź dane użytkownika w localStorage:</p>
+        <button onclick="checkLocalStorage()">Sprawdź localStorage</button>
+        <div id="storage-result"></div>
+    </div>
+
+    <script>
+        function testLogin() {
+            const result = document.getElementById('login-result');
+            try {
+                // Symuluj logowanie admin
+                const adminUser = {
+                    id: '1',
+                    email: 'admin@lzs-pomorski.pl',
+                    role: 'admin',
+                    name: 'Administrator LZS'
+                };
+                
+                localStorage.setItem('lzs-current-user', JSON.stringify(adminUser));
+                
+                result.innerHTML = '<div class="success">✅ Admin zalogowany pomyślnie!</div>';
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ Błąd: ${error.message}</div>`;
+            }
+        }
+        
+        function testNavigateToOffice() {
+            const result = document.getElementById('nav-result');
+            try {
+                // Symuluj funkcję handleNavigateToOffice
+                const navigate = (path) => {
+                    window.location.href = path;
+                };
+                
+                navigate('/office');
+                result.innerHTML = '<div class="success">✅ Próba przejścia do /office</div>';
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ Błąd: ${error.message}</div>`;
+            }
+        }
+        
+        function testNavigateToJudge() {
+            const result = document.getElementById('nav-result');
+            try {
+                // Symuluj funkcję handleNavigateToJudge
+                const navigate = (path) => {
+                    window.location.href = path;
+                };
+                
+                navigate('/judge');
+                result.innerHTML = '<div class="success">✅ Próba przejścia do /judge</div>';
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ Błąd: ${error.message}</div>`;
+            }
+        }
+        
+        function checkCurrentUrl() {
+            const result = document.getElementById('url-result');
+            result.innerHTML = `<div>📍 Aktualny URL: ${window.location.href}</div>`;
+        }
+        
+        function goToOffice() {
+            window.location.href = '/office';
+        }
+        
+        function goToJudge() {
+            window.location.href = '/judge';
+        }
+        
+        function checkLocalStorage() {
+            const result = document.getElementById('storage-result');
+            try {
+                const userData = localStorage.getItem('lzs-current-user');
+                if (userData) {
+                    const user = JSON.parse(userData);
+                    result.innerHTML = `<div class="success">✅ Użytkownik: ${user.name} (${user.role})</div>`;
+                } else {
+                    result.innerHTML = '<div class="error">❌ Brak danych użytkownika w localStorage</div>';
+                }
+            } catch (error) {
+                result.innerHTML = `<div class="error">❌ Błąd: ${error.message}</div>`;
+            }
+        }
+        
+        // Automatycznie sprawdź localStorage przy ładowaniu
+        window.onload = function() {
+            checkLocalStorage();
+            checkCurrentUrl();
+        };
+    </script>
+</body>
+</html>

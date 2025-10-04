@@ -5,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 export interface Event {
   id: string;
   name: string;
+  slug?: string;
   description: string | null;
   location: string;
   start_date: string;
